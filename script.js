@@ -20,11 +20,15 @@ async function getSongs(folder) {
     let res = await fetch(`songs/${folder}/songs.json`);
 
     if (!res.ok) {
-      console.error("songs.json not found");
+      console.error(`songs.json not found for folder "${folder}" (status ${res.status})`);
       return [];
     }
 
     let songNames = await res.json();
+    if (!Array.isArray(songNames)) {
+      console.error(`songs.json for folder "${folder}" does not contain an array`);
+      return [];
+    }
 
     songs = songNames.map(
       song => `songs/${folder}/${song}`
@@ -279,20 +283,20 @@ async function main() {
   document.querySelector(".close").addEventListener("click", () => {
     document.querySelector(".left").style.left = "-100%";
   });
+  const getCurrentSongIndex = () => {
+    let currentSrc = currentSong.src;
+    return songs.findIndex((song) => currentSrc.endsWith(song));
+  };
+
   const playPreviousSong = () => {
-    let index = songs.indexOf(currentSong.src);
-    console.log(index);
-    console.log(songs);
-    console.log(currentSong.src);
-    if (index - 1 >= 0) {
-      playMusic(songs[index - 1]);
-    }
+    let index = getCurrentSongIndex();
+    if (index <= 0) return;
+    playMusic(songs[index - 1]);
   };
   const playNextSong = () => {
-    let index = songs.indexOf(currentSong.src);
-    if (index + 1 < songs.length) {
-      playMusic(songs[index + 1]);
-    }
+    let index = getCurrentSongIndex();
+    if (index < 0 || index + 1 >= songs.length) return;
+    playMusic(songs[index + 1]);
   };
   let previous = document.querySelector(".previous");
   let forward = document.querySelector(".forward");
