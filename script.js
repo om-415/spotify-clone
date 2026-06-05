@@ -13,64 +13,119 @@ function formatTime(seconds) {
 
   return `${mins}:${secs}`;
 }
-
 async function getSongs(folder) {
   currFolder = folder;
-  try {
-    let a = await fetch(`songs/${folder}`);
-    if (!a.ok) {
-      console.error(`Failed to load folder: ${folder}`, a.status);
-      songs = [];
-      return songs;
-    }
-    let response = await a.text();
-    let div = document.createElement("div");
-    div.innerHTML = response;
-    let as = div.getElementsByTagName("a");
-    songs = [];
-    for (let index = 0; index < as.length; index++) {
-      const element = as[index];
-      if (element.href.endsWith(".mp3")) {
-        songs.push(element.href);
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching songs:", error);
-    songs = [];
-    return songs;
-  }
-  // showing all the songs in the playlist by useing split by"/" and poping the last name
-  let songUL = document
-    .querySelector(".song-Library")
-    .getElementsByTagName("ul")[0];
-  songUL.innerHTML = "";
-  for (const song of songs) {
-    let name = song.split("/").pop();
-    name = decodeURIComponent(name);
-    name = name.replace(".mp3", "");
-    songUL.innerHTML += `<li>
-                <img class="invert music-icon" src="img/music.svg" alt="" />
-                <div class="info">
-                  <div>${name}</div>
-                  <div>Om</div>
-                </div>
-                <div class="playnow">
-                  <img class="invert" src="img/playbutton.svg" alt="" />
-                </div>
-    </li>`;
-  }
 
-  // Attach Event listiner to every song.
-  Array.from(
-    document.querySelector(".song-Library").getElementsByTagName("li"),
-  ).forEach((e, index) => {
-    e.addEventListener("click", (element) => {
-      console.log(e.querySelector(".info").firstElementChild.innerHTML);
-      playMusic(songs[index]);
-    });
-  });
-  return songs;
+  try {
+    let res = await fetch(`songs/${folder}/songs.json`);
+
+    if (!res.ok) {
+      console.error("songs.json not found");
+      return [];
+    }
+
+    let songNames = await res.json();
+
+    songs = songNames.map(
+      song => `songs/${folder}/${song}`
+    );
+
+    // render library
+    let songUL = document
+      .querySelector(".song-Library ul");
+
+    songUL.innerHTML = "";
+
+    for (const song of songs) {
+      let name = decodeURIComponent(
+        song.split("/").pop()
+      ).replace(".mp3", "");
+
+      songUL.innerHTML += `
+      <li>
+        <img class="invert music-icon" src="img/music.svg">
+        <div class="info">
+          <div>${name}</div>
+          <div>Om</div>
+        </div>
+        <div class="playnow">
+          <img class="invert" src="img/playbutton.svg">
+        </div>
+      </li>`;
+    }
+
+    Array.from(songUL.getElementsByTagName("li"))
+      .forEach((e, index) => {
+        e.addEventListener("click", () => {
+          playMusic(songs[index]);
+        });
+      });
+
+    return songs;
+
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 }
+
+// async function getSongs(folder) {
+//   currFolder = folder;
+//   try {
+//     let a = await fetch(`songs/${folder}/songs.json`);
+//     if (!a.ok) {
+//       console.error(`Failed to load folder: ${folder}`, a.status);
+//       songs = [];
+//       return songs;
+//     }
+//     let response = await a.text();
+//     let div = document.createElement("div");
+//     div.innerHTML = response;
+//     let as = div.getElementsByTagName("a");
+//     songs = [];
+//     for (let index = 0; index < as.length; index++) {
+//       const element = as[index];
+//       if (element.href.endsWith(".mp3")) {
+//         songs.push(element.href);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error fetching songs:", error);
+//     songs = [];
+//     return songs;
+//   }
+//   // showing all the songs in the playlist by useing split by"/" and poping the last name
+//   let songUL = document
+//     .querySelector(".song-Library")
+//     .getElementsByTagName("ul")[0];
+//   songUL.innerHTML = "";
+//   for (const song of songs) {
+//     let name = song.split("/").pop();
+//     name = decodeURIComponent(name);
+//     name = name.replace(".mp3", "");
+//     songUL.innerHTML += `<li>
+//                 <img class="invert music-icon" src="img/music.svg" alt="" />
+//                 <div class="info">
+//                   <div>${name}</div>
+//                   <div>Om</div>
+//                 </div>
+//                 <div class="playnow">
+//                   <img class="invert" src="img/playbutton.svg" alt="" />
+//                 </div>
+//     </li>`;
+//   }
+
+//   // Attach Event listiner to every song.
+//   Array.from(
+//     document.querySelector(".song-Library").getElementsByTagName("li"),
+//   ).forEach((e, index) => {
+//     e.addEventListener("click", (element) => {
+//       console.log(e.querySelector(".info").firstElementChild.innerHTML);
+//       playMusic(songs[index]);
+//     });
+//   });
+//   return songs;
+// }
 let play = document.querySelector(".play-icon");
 let currentSong = new Audio();
 const playMusic = (track, pause = false) => {
