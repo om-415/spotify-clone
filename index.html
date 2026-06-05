@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spotify - Web Player: Music for everyone</title>
+    <!-- <link rel="stylesheet" href="style.css" /> -->
+     <link rel="stylesheet" href="Refactored.css">
+    <link rel="stylesheet" href="utility.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+
+  <body>
+    <div class="container flex bg-black">
+      <div class="left border bg-black">
+        <div class="close">
+          <img width="30" class="invert" src="img/close.svg" alt="close.svg" />
+        </div>
+
+        <div class="home bg-grey rounded m1 p-1">
+          <div class="logo invert"><img src="img/logo.svg" alt="" /></div>
+          <ul>
+            <li><img class="invert" src="img/home.svg" alt="" />Home</li>
+            <li><img class="invert" src="img/search.svg" alt="" />Search</li>
+          </ul>
+        </div>
+        <div class="library bg-grey rounded m1 p-1">
+          <div class="heading">
+            <img class="invert" src="img/library.svg" alt="" />
+            <h2>your libarary</h2>
+          </div>
+          <div class="song-Library">
+            <ul></ul>
+          </div>
+          <div class="footer">
+            <div>
+              <a href="https://www.spotify.com/in-en/legal/"
+                ><span>Legal</span></a
+              >
+            </div>
+
+            <div>
+              <a href="https://www.spotify.com/in-en/safetyandprivacy/">
+                <span>Safety & Privacy Center</span>
+              </a>
+            </div>
+
+            <div>
+              <a href="https://www.spotify.com/in-en/legal/privacy-policy/">
+                <span>Privacy Policy</span>
+              </a>
+            </div>
+
+            <div>
+              <a href="https://www.spotify.com/in-en/legal/cookies-policy/">
+                <span>Cookies</span>
+              </a>
+            </div>
+
+            <div>
+              <a href="https://www.spotify.com/in-en/legal/privacy-policy/#s3">
+                <span>About Ads</span>
+              </a>
+            </div>
+
+            <div>
+              <a href="https://www.spotify.com/in-en/accessibility/">
+                <span>Accessibility</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right bg-grey">
+        <div class="header">
+          <div class="nav">
+            <img class="hamburger invert" src="img/hamburger.svg" alt="" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="none"
+                stroke="#4f4f4f"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15 6s-6 4.419-6 6s6 6 6 6"
+                color="currentColor"
+              />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="none"
+                stroke="#4f4f4f"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 6s6 4.419 6 6s-6 6-6 6"
+                color="currentColor"
+              />
+            </svg>
+          </div>
+          <div class="buttons">
+            <button class="signupbtn">Sign up</button>
+            <button class="loginbtn">Log in</button>
+          </div>
+        </div>
+        <div class="spotifyPlaylist">
+          <h2>Trending Songs</h2>
+          <div class="cardContainer">
+            <div data-folder="cs" class="card">
+              <div class="card-image">
+                <img
+                  src="https://i.scdn.co/image/ab67616d00001e02cdce9a38222807fa703b4396"
+                  alt=""
+                />
+                <div class="play">
+                  <img src="img/play.svg" alt="" />
+                </div>
+              </div>
+              <h3>Bairan</h3>
+              <p>Banjaare</p>
+            </div>
+            <div data-folder="ncs" class="card">
+              <div class="card-image">
+                <img
+                  src="https://i.scdn.co/image/ab67616d00001e02f5f2a6705dfe3c2fe11028c8"
+                  alt=""
+                />
+                <div class="play">
+                  <img src="img/play.svg" alt="" />
+                </div>
+              </div>
+              <h3>Pavazha Malli - From "Think Indie"</h3>
+              <p>Sai Abhayankar,Shruti Hassan,Vivek</p>
+            </div>
+            <div class="card Dhurandhar">
+              <div class="card-image">
+                <img
+                  src="https://i.scdn.co/image/ab67616d00001e02f1d982bdf924dd4015ddf475"
+                  alt=""
+                />
+                <div class="play">
+                  <img src="img/play.svg" alt="" />
+                </div>
+              </div>
+              <h3>Dhurandhar The Revenge...</h3>
+              <p>Saswat sachdev ,Bombay Rockers...</p>
+            </div>            
+          </div>
+          <div class="playBar">
+            <div class="seekbar">
+              <div class="circle"></div>
+            </div>
+            <div class="aboveBar">
+              <div class="songinfo"></div>
+              <div class="controls">
+                <img src="img/previous.svg" class="control-icon previous" alt="" />
+                <img src="img/playbutton.svg" class="play-icon" alt="" />
+                <img src="img/forward.svg" class="control-icon forward" alt="" />
+              </div>
+              <div class="timevol">
+                <img src="img/volume.svg " class="invert volume-icon" alt="">
+                <input type="range" id="volume" class="volume-slider" min="0" max="100" value="100">
+                <div class="songtime"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
