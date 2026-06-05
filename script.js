@@ -133,7 +133,7 @@ async function displayAlbums() {
 async function main() {
   // Load first album by default
   let defaultAlbum = "ncs";
-  songs = await getSongs(`songs/${defaultAlbum}`);
+  songs = await getSongs(defaultAlbum);
 
   // Only play music if songs were found
   if (songs && songs.length > 0) {
@@ -299,7 +299,7 @@ async function main() {
         return;
       }
 
-      songs = await getSongs(`songs/${folder}`);
+      songs = await getSongs(folder);
     });
   });
 }
