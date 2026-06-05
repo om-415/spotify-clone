@@ -81,7 +81,13 @@ const playMusic = (track, pause = false) => {
 
   currentSong.src = track;
   if (!pause) {
-    currentSong.play();
+    // Handle play promise rejection (AbortError)
+    const playPromise = currentSong.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.log("Play interrupted:", error);
+      });
+    }
     play.src = "img/pause.svg";
   }
 
@@ -93,53 +99,41 @@ const playMusic = (track, pause = false) => {
 
 // display function for albums
 async function displayAlbums() {
-  let a = await fetch("songs/");
-  let response = await a.text();
-  let div = document.createElement("div");
-  div.innerHTML = response;
-  let anchor = div.getElementsByTagName("a");
-  let cardContainer = document.querySelector(".cardContainer");
-  cardContainer.innerHTML = "";
+  try {
+    let response = await fetch("songs/manifest.json");
+    if (!response.ok) {
+      console.error("Could not load manifest:", response.status);
+      return;
+    }
 
-  for (const e of Array.from(anchor)) {
-    if (e.href.includes("/songs/") && !e.href.endsWith(".mp3")) {
-      let pathParts = new URL(e.href).pathname.split("/").filter(Boolean);
-      let folder = pathParts[pathParts.length - 1];
+    let manifest = await response.json();
+    let cardContainer = document.querySelector(".cardContainer");
+    cardContainer.innerHTML = "";
 
-      if (!folder || folder === "songs") {
-        return;
-      }
-
-      //Get the metadata of the folder
-      let a = await fetch(`songs/${folder}/info.json`);
-      if (!a.ok) {
-        console.error("Could not load album info:", a.url, a.status);
-        continue;
-      }
-
-      let response = await a.json();
-
-      cardContainer.innerHTML =
-        cardContainer.innerHTML +
-        ` <div data-folder="${folder}" class="card">
+    for (const album of manifest.albums) {
+      cardContainer.innerHTML += ` <div data-folder="${album.folder}" class="card">
               <div class="card-image">
                 <img
-                  src="songs/${folder}/cover.jpg"
+                  src="songs/${album.folder}/cover.jpg"
                   alt=""
                 />
                 <div class="play">
                   <img src="img/play.svg" alt="" />
                 </div>
               </div>
-              <h3>${response.title}</h3>
-              <p>${response.description}</p>
+              <h3>${album.title}</h3>
+              <p>${album.description}</p>
             </div>`;
     }
+  } catch (error) {
+    console.error("Error loading albums:", error);
   }
 }
 
 async function main() {
-  songs = await getSongs(`songs/cs`);
+  // Load first album by default
+  let defaultAlbum = "ncs";
+  songs = await getSongs(`songs/${defaultAlbum}`);
 
   // Only play music if songs were found
   if (songs && songs.length > 0) {

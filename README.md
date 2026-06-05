@@ -101,11 +101,11 @@ The application supports keyboard shortcuts for improved accessibility and user 
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-| --- | --- |
-| `Space` | Play / Pause |
-| `Arrow Left` | Previous Song |
-| `Arrow Right` | Next Song |
+| Shortcut      | Action        |
+| ------------- | ------------- |
+| `Space`       | Play / Pause  |
+| `Arrow Left`  | Previous Song |
+| `Arrow Right` | Next Song     |
 
 ## Learning Outcomes
 
@@ -119,10 +119,207 @@ The application supports keyboard shortcuts for improved accessibility and user 
 
 ## Challenges Faced
 
+### Development Issues and Solutions
+
+This section documents common errors encountered during development and deployment, with solutions applied.
+
+#### 1. **Error: `net::ERR_CONNECTION_REFUSED` & `Failed to fetch`**
+
+**Problem:**
+
+```
+Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+script.js:19  Uncaught (in promise) TypeError: Failed to fetch
+```
+
+**Cause:** Hardcoded localhost URL in fetch requests:
+
+```javascript
+// ❌ WRONG - Only works on local machine
+fetch(`http://127.0.0.1:5500/projects/Spotify%20clone%20H/${folder}`);
+```
+
+When deployed to Netlify, this address doesn't exist, causing connection refused errors.
+
+**Solution:** Use relative paths instead:
+
+```javascript
+// ✅ CORRECT - Works anywhere
+fetch(`songs/${folder}`);
+```
+
+**Lesson:** Always use relative paths for assets and API calls that should work across different environments.
+
+---
+
+#### 2. **Error: `Cannot read properties of undefined (reading 'split')`**
+
+**Problem:**
+
+```
+script.js:79 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'split')
+    at playMusic (script.js:79:11)
+    at main (script.js:134:3)
+```
+
+**Cause:** Attempting to play a song when the `songs` array was empty (due to 404 error from Issue #1). The code tried to call `songs[0]` which was `undefined`, then tried to call `.split()` on it.
+
+**Solution:** Add defensive null checks before using variables:
+
+```javascript
+const playMusic = (track, pause = false) => {
+  if (!track) {
+    console.warn("No track provided to playMusic");
+    return; // Exit early if no track
+  }
+  // ... rest of code
+};
+```
+
+Also check if songs array has content before accessing:
+
+```javascript
+if (songs && songs.length > 0) {
+  playMusic(songs[0], true);
+} else {
+  console.warn("No songs found in the specified folder");
+}
+```
+
+**Lesson:** Always validate data before using it, especially with array access and method calls.
+
+---
+
+#### 3. **Error: `Failed to load resource: 404` - Directory Listing Not Available**
+
+**Problem:**
+
+```
+Failed to load resource: the server responded with a status of 404 ()
+script.js:22 Failed to load folder: songs/cs 404
+/songs/:1 Failed to load resource: the server responded with a status of 404 ()
+```
+
+**Cause:** The code relied on fetching a directory listing from `songs/` folder:
+
+```javascript
+// ❌ WRONG - Requires directory listing enabled
+fetch("songs/"); // Expects HTML directory listing response
+```
+
+Netlify (and most production servers) disable directory listing by default for security reasons. The fetch returns 404 because there's no actual file at that path.
+
+**Solution:** Create a `manifest.json` file explicitly listing all albums:
+
+```json
+{
+  "albums": [
+    {
+      "folder": "cs",
+      "title": "copyright songs",
+      "description": "songs you like the most"
+    },
+    {
+      "folder": "ncs",
+      "title": "NCS",
+      "description": "No Copyright Sounds"
+    }
+  ]
+}
+```
+
+Then fetch from the manifest instead:
+
+```javascript
+// ✅ CORRECT - Uses explicit manifest
+let response = await fetch("songs/manifest.json");
+let manifest = await response.json();
+
+for (const album of manifest.albums) {
+  // Render album cards
+}
+```
+
+**Lesson:** Don't rely on server features like directory listing in production. Always use explicit configuration files (JSON manifests, config files, etc.).
+
+---
+
+#### 4. **Error: `AbortError: The play() request was interrupted by a call to pause()`**
+
+**Problem:**
+
+```
+Uncaught (in promise) AbortError: The play() request was interrupted by a call to pause().
+https://goo.gl/LdLk22
+```
+
+**Cause:** The `play()` method returns a Promise in modern browsers. If `pause()` is called before the promise resolves, the browser throws an AbortError.
+
+```javascript
+// ❌ WRONG - No error handling
+currentSong.play(); // Returns a Promise that might reject
+```
+
+**Solution:** Catch the promise and handle errors:
+
+```javascript
+// ✅ CORRECT - Handles promise rejection
+const playPromise = currentSong.play();
+if (playPromise !== undefined) {
+  playPromise.catch((error) => {
+    console.log("Play interrupted:", error);
+  });
+}
+```
+
+**Lesson:** Always handle Promises properly, especially for APIs like Audio that might reject.
+
+---
+
+#### 5. **Error: App Works Locally but Not on Netlify**
+
+**Root Cause:** Multiple issues combined:
+
+1. Hardcoded localhost URLs
+2. No error handling for failed fetches
+3. Reliance on server directory listing
+4. No graceful degradation when songs aren't available
+
+**Complete Solution Applied:**
+
+- ✅ Replaced all localhost URLs with relative paths
+- ✅ Added try-catch blocks to all fetch calls
+- ✅ Created `songs/manifest.json` for album data
+- ✅ Added null/undefined checks before using data
+- ✅ Added promise error handling for audio playback
+- ✅ Set default album to one known to have songs
+
+**Result:** App now works seamlessly on both local development server and Netlify.
+
+---
+
+### Key Deployment Checklist
+
+- [ ] No hardcoded URLs (localhost, specific paths, etc.)
+- [ ] All fetches are from relative paths or explicit config files
+- [ ] Error handling for all async operations
+- [ ] Null/undefined checks before accessing properties
+- [ ] Promise error handling for APIs
+- [ ] All required assets included (CSS, images, audio files)
+- [ ] Static manifest/config files instead of relying on server features
+- [ ] Browser console shows no errors or warnings
+- [ ] Works offline (where applicable)
+
+---
+
+## Challenges Faced (General)
+
 - Loading music folders dynamically in a browser environment
 - Synchronizing seekbar progress with audio playback
 - Managing responsive layout across desktop and mobile screen sizes
 - Building playlist and album UI dynamically with JavaScript
+- Handling cross-origin and CORS issues
+- Managing audio playback state across different browsers
 
 ## Future Improvements
 

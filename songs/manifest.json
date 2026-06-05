@@ -1,0 +1,29 @@
+{
+  "albums": [
+    {
+      "folder": "cs",
+      "title": "copyright songs",
+      "description": "songs you like the most"
+    },
+    {
+      "folder": "Ashique 2",
+      "title": "Aashiqui 2",
+      "description": "Mitthon, Ankit tiwari, jeet Ganguli"
+    },
+    {
+      "folder": "Finding Her",
+      "title": "Finding Her",
+      "description": "Kushagra"
+    },
+    {
+      "folder": "ncs",
+      "title": "NCS",
+      "description": "No Copyright Sounds"
+    },
+    {
+      "folder": "Ye jawaani hai deewani",
+      "title": "Ye Jawaani Hai Deewani",
+      "description": "Bollywood Hits"
+    }
+  ]
+}
