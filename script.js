@@ -20,30 +20,29 @@ async function getSongs(folder) {
     let res = await fetch(`songs/${folder}/songs.json`);
 
     if (!res.ok) {
-      console.error(`songs.json not found for folder "${folder}" (status ${res.status})`);
+      console.error(
+        `songs.json not found for folder "${folder}" (status ${res.status})`,
+      );
       return [];
     }
 
     let songNames = await res.json();
     if (!Array.isArray(songNames)) {
-      console.error(`songs.json for folder "${folder}" does not contain an array`);
+      console.error(
+        `songs.json for folder "${folder}" does not contain an array`,
+      );
       return [];
     }
 
-    songs = songNames.map(
-      song => `songs/${folder}/${song}`
-    );
+    songs = songNames.map((song) => `songs/${folder}/${song}`);
 
     // render library
-    let songUL = document
-      .querySelector(".song-Library ul");
+    let songUL = document.querySelector(".song-Library ul");
 
     songUL.innerHTML = "";
 
     for (const song of songs) {
-      let name = decodeURIComponent(
-        song.split("/").pop()
-      ).replace(".mp3", "");
+      let name = decodeURIComponent(song.split("/").pop()).replace(".mp3", "");
 
       songUL.innerHTML += `
       <li>
@@ -58,15 +57,13 @@ async function getSongs(folder) {
       </li>`;
     }
 
-    Array.from(songUL.getElementsByTagName("li"))
-      .forEach((e, index) => {
-        e.addEventListener("click", () => {
-          playMusic(songs[index]);
-        });
+    Array.from(songUL.getElementsByTagName("li")).forEach((e, index) => {
+      e.addEventListener("click", () => {
+        playMusic(songs[index]);
       });
+    });
 
     return songs;
-
   } catch (err) {
     console.error(err);
     return [];
