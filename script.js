@@ -16,9 +16,7 @@ function formatTime(seconds) {
 
 async function getSongs(folder) {
   currFolder = folder;
-  let a = await fetch(
-    `http://127.0.0.1:5500/projects/Spotify%20clone%20H/${folder}`,
-  );
+  let a = await fetch(`songs/${folder}`);
   let response = await a.text();
   let div = document.createElement("div");
   div.innerHTML = response;
@@ -34,7 +32,7 @@ async function getSongs(folder) {
   let songUL = document
     .querySelector(".song-Library")
     .getElementsByTagName("ul")[0];
-    songUL.innerHTML = "";
+  songUL.innerHTML = "";
   for (const song of songs) {
     let name = song.split("/").pop();
     name = decodeURIComponent(name);
@@ -94,7 +92,7 @@ async function displayAlbums() {
   cardContainer.innerHTML = "";
 
   for (const e of Array.from(anchor)) {
-    if(e.href.includes("/songs/") && !e.href.endsWith(".mp3")){
+    if (e.href.includes("/songs/") && !e.href.endsWith(".mp3")) {
       let pathParts = new URL(e.href).pathname.split("/").filter(Boolean);
       let folder = pathParts[pathParts.length - 1];
 
@@ -102,7 +100,6 @@ async function displayAlbums() {
         return;
       }
 
-      
       //Get the metadata of the folder
       let a = await fetch(`songs/${folder}/info.json`);
       if (!a.ok) {
@@ -111,8 +108,10 @@ async function displayAlbums() {
       }
 
       let response = await a.json();
-      
-      cardContainer.innerHTML = cardContainer.innerHTML + ` <div data-folder="${folder}" class="card">
+
+      cardContainer.innerHTML =
+        cardContainer.innerHTML +
+        ` <div data-folder="${folder}" class="card">
               <div class="card-image">
                 <img
                   src="songs/${folder}/cover.jpg"
@@ -127,18 +126,16 @@ async function displayAlbums() {
             </div>`;
     }
   }
-  
 }
-
 
 async function main() {
   songs = await getSongs(`songs/cs`);
- 
+
   playMusic(songs[0], true);
 
   //Display all the albums
   await displayAlbums();
-  
+
   //  Attach an event listener to play, next and previous
 
   const togglePlay = () => {
@@ -159,7 +156,6 @@ async function main() {
       togglePlay();
     }
   });
-
 
   //  Listen fir time update event
   currentSong.addEventListener("timeupdate", () => {
@@ -224,31 +220,29 @@ async function main() {
     console.log(index);
     console.log(songs);
     console.log(currentSong.src);
-    if(index - 1 >=0){
+    if (index - 1 >= 0) {
       playMusic(songs[index - 1]);
     }
-    };
-    const playNextSong  = () =>{
-      let index = songs.indexOf (currentSong.src);
-      if(index +1 <songs.length){
-        playMusic(songs[index+1]);
-      }
-    };
-    let previous = document.querySelector(".previous");
-    let forward = document.querySelector(".forward");
-    previous.addEventListener("click", playPreviousSong);
-    forward.addEventListener("click", playNextSong);
-    document.addEventListener("keydown", (e) => {
-      if(e.code ==="ArrowLeft"){
-        playPreviousSong();
-      }
-      else if(e.code === "ArrowRight"){
-        playNextSong();
-      }
-    }); 
-    
+  };
+  const playNextSong = () => {
+    let index = songs.indexOf(currentSong.src);
+    if (index + 1 < songs.length) {
+      playMusic(songs[index + 1]);
+    }
+  };
+  let previous = document.querySelector(".previous");
+  let forward = document.querySelector(".forward");
+  previous.addEventListener("click", playPreviousSong);
+  forward.addEventListener("click", playNextSong);
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "ArrowLeft") {
+      playPreviousSong();
+    } else if (e.code === "ArrowRight") {
+      playNextSong();
+    }
+  });
 
-    // let previous = document.querySelector(".previous");
+  // let previous = document.querySelector(".previous");
   // previous.addEventListener("click", () => {
   //   let index = songs.indexOf(currentSong.src);
 
@@ -269,13 +263,12 @@ async function main() {
 
   let volume = document.querySelector("#volume");
   let volumeIcon = document.querySelector(".volume-icon");
-  volumeIcon.addEventListener("click",  e => {
-    if(e.target.src.includes("img/volume.svg")){
+  volumeIcon.addEventListener("click", (e) => {
+    if (e.target.src.includes("img/volume.svg")) {
       currentSong.volume = 0;
       volume.value = 0;
-      volumeIcon.src ="img/mute.svg";
-    }
-    else{
+      volumeIcon.src = "img/mute.svg";
+    } else {
       currentSong.volume = 1;
       volume.value = 10;
       volumeIcon.src = "img/volume.svg";
@@ -283,24 +276,23 @@ async function main() {
   });
   volume.addEventListener("input", () => {
     currentSong.volume = volume.value / 100;
-    if(volume.value == 0){
+    if (volume.value == 0) {
       volumeIcon.src = "img/mute.svg";
-    }else{
-      volumeIcon.src= "img/volume.svg";
+    } else {
+      volumeIcon.src = "img/volume.svg";
     }
   });
   //card per click karte hi card ka gana library me aa jaye.
-  Array.from(document.getElementsByClassName("card")).forEach(e=>{
-    e.addEventListener("click", async item=>{
-        let folder = item.currentTarget.dataset.folder;
-        if (!folder) {
-          return;
-        }
+  Array.from(document.getElementsByClassName("card")).forEach((e) => {
+    e.addEventListener("click", async (item) => {
+      let folder = item.currentTarget.dataset.folder;
+      if (!folder) {
+        return;
+      }
 
-        songs = await getSongs(`songs/${folder}`);
-      
-    })
-  })
+      songs = await getSongs(`songs/${folder}`);
+    });
+  });
 }
 
 main();
