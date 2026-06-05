@@ -16,17 +16,28 @@ function formatTime(seconds) {
 
 async function getSongs(folder) {
   currFolder = folder;
-  let a = await fetch(`songs/${folder}`);
-  let response = await a.text();
-  let div = document.createElement("div");
-  div.innerHTML = response;
-  let as = div.getElementsByTagName("a");
-  songs = [];
-  for (let index = 0; index < as.length; index++) {
-    const element = as[index];
-    if (element.href.endsWith(".mp3")) {
-      songs.push(element.href);
+  try {
+    let a = await fetch(`songs/${folder}`);
+    if (!a.ok) {
+      console.error(`Failed to load folder: ${folder}`, a.status);
+      songs = [];
+      return songs;
     }
+    let response = await a.text();
+    let div = document.createElement("div");
+    div.innerHTML = response;
+    let as = div.getElementsByTagName("a");
+    songs = [];
+    for (let index = 0; index < as.length; index++) {
+      const element = as[index];
+      if (element.href.endsWith(".mp3")) {
+        songs.push(element.href);
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching songs:", error);
+    songs = [];
+    return songs;
   }
   // showing all the songs in the playlist by useing split by"/" and poping the last name
   let songUL = document
@@ -63,17 +74,16 @@ async function getSongs(folder) {
 let play = document.querySelector(".play-icon");
 let currentSong = new Audio();
 const playMusic = (track, pause = false) => {
+  if (!track) {
+    console.warn("No track provided to playMusic");
+    return;
+  }
+
   currentSong.src = track;
   if (!pause) {
     currentSong.play();
     play.src = "img/pause.svg";
   }
-
-  // Extract just the track name from the URL
-  // let trackName = track.split("/").pop();
-  // trackName = decodeURIComponent(trackName);
-  // // Remove .mp3 extension for cleaner display
-  // trackName = trackName.replace(".mp3", "");
 
   document.querySelector(".songinfo").innerHTML = decodeURIComponent(
     track.split("/").pop(),
@@ -131,7 +141,12 @@ async function displayAlbums() {
 async function main() {
   songs = await getSongs(`songs/cs`);
 
-  playMusic(songs[0], true);
+  // Only play music if songs were found
+  if (songs && songs.length > 0) {
+    playMusic(songs[0], true);
+  } else {
+    console.warn("No songs found in the specified folder");
+  }
 
   //Display all the albums
   await displayAlbums();
