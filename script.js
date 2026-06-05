@@ -281,8 +281,20 @@ async function main() {
     document.querySelector(".left").style.left = "-100%";
   });
   const getCurrentSongIndex = () => {
+    if (!Array.isArray(songs) || songs.length === 0) return -1;
     let currentSrc = currentSong.src;
-    return songs.findIndex((song) => currentSrc.endsWith(song));
+    if (!currentSrc) return -1;
+
+    try {
+      let currentPath = new URL(currentSrc, window.location.href).pathname;
+      currentPath = decodeURIComponent(currentPath);
+      return songs.findIndex((song) => {
+        let normalizedSong = song.startsWith("/") ? song : `/${song}`;
+        return currentPath.endsWith(normalizedSong);
+      });
+    } catch (error) {
+      return songs.findIndex((song) => currentSrc.endsWith(song));
+    }
   };
 
   const playPreviousSong = () => {
