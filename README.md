@@ -34,7 +34,7 @@ Spotify Clone H is a frontend music streaming web application inspired by the Sp
 
 > Add your deployed link here
 
-[Live Demo](https://example.com)
+[Live Demo](https://spotifclon.netlify.app/)
 
 ## Technologies Used
 
@@ -318,6 +318,14 @@ if (playPromise !== undefined) {
 - Synchronizing seekbar progress with audio playback
 - Managing responsive layout across desktop and mobile screen sizes
 - Building playlist and album UI dynamically with JavaScript
+
+## Resolved Issues
+
+- Missing `songs.json` manifests in album folders caused 404 fetch errors; created `songs.json` for `cs`, `Ashique 2`, `Finding Her`, and `Ye jawaani hai deewani`.
+- Incorrect placeholder file names in `songs/ncs/songs.json` caused `404` and unsupported audio source errors; corrected the playlist to use the actual MP3 filenames.
+- Fixed Netlify deployment failures by replacing hardcoded or directory-listing-dependent fetch logic with explicit relative paths and manifest-based album loading.
+- Handled browser URL encoding for paths with spaces, so previous/next navigation works correctly on Netlify.
+- Added defensive checks and promise rejection handling for audio playback to avoid crashes when playback resources are not available.
 - Handling cross-origin and CORS issues
 - Managing audio playback state across different browsers
 
